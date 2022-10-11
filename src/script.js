@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 
 const renderer = new THREE.WebGLRenderer({antialias: true});
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 document.body.appendChild(renderer.domElement);
+
+const carURL = new URL('../static/SUV.glb', import.meta.url)
 
 const scene = new THREE.Scene();
 
@@ -36,7 +39,7 @@ scene.add(vehicleMesh);
 
 const vehicle = new YUKA.Vehicle();
 
-vehicle.setRenderComponent(vehicleMesh, sync);
+vehicle.scale.set(0.15, 0.15, 0.15)
 
 function sync(entity, renderComponent) {
     renderComponent.matrix.copy(entity.worldMatrix);
@@ -45,28 +48,48 @@ function sync(entity, renderComponent) {
 const entityManager = new YUKA.EntityManager();
 entityManager.add(vehicle);
 
-const targetGeometry = new THREE.SphereGeometry(0.1);
-const targetMaterial = new THREE.MeshPhongMaterial({color: 0xFFEA00});
-const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
-targetMesh.matrixAutoUpdate = false;
-scene.add(targetMesh);
+const loader = new GLTFLoader()
+loader.load(carURL.href, function(glb) {
+  const model = glb.scene
+  model.matrixAutoUpdate = false
+  scene.add(model)
+  vehicle.setRenderComponent(model, sync);
+})
+
+
 
 const target = new YUKA.GameEntity();
-target.setRenderComponent(targetMesh, sync);
 entityManager.add(target);
 
-const seekBehavior = new YUKA.SeekBehavior(target.position);
+const seekBehavior = new YUKA.ArriveBehavior(target.position, 3, 0.5);
 vehicle.steering.add(seekBehavior);
 
 vehicle.position.set(-2, 0, -2);
 
-setInterval(function(){
-    const x = Math.random() * 3;
-    const y = Math.random() * 3;
-    const z = Math.random() * 3;
+const mousePosition = new THREE.Vector2()
 
-    target.position.set(x, y, z);
-}, 2000);
+window.addEventListener('mousemove', function(e) {
+  mousePosition.x = (e.clientX / this.window.innerWidth) * 2 -1
+  mousePosition.y = -(e.clientY / this.window.innerHeight) * 2 + 1
+})
+
+const planeGeo = new THREE.PlaneGeometry(25, 25)
+const planeMat = new THREE.MeshBasicMaterial({visible: false})
+const planeMesh = new THREE.Mesh(planeGeo, planeMat)
+planeMesh.rotation.x = -0.5 * Math.PI
+scene.add(planeMesh)
+planeMesh.name = 'plane'
+
+const raycaster = new THREE.Raycaster()
+
+window.addEventListener('click', function() {
+  raycaster.setFromCamera(mousePosition, camera)
+  const intersects = raycaster.intersectObjects(scene.children)
+  for(let i = 0; i < intersects.length; i++) {
+    if(intersects[i].object.name === 'plane')
+      target.position.set(intersects[i].point.x, 0, intersects[i].point.z)
+  }
+})
 
 const time = new YUKA.Time();
 
