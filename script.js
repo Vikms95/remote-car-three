@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const renderer = new THREE.WebGLRenderer({antialias: true});
 
@@ -30,12 +30,12 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
 scene.add(directionalLight);
 
-const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8);
-vehicleGeometry.rotateX(Math.PI * 0.5);
-const vehicleMaterial = new THREE.MeshNormalMaterial();
-const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
-vehicleMesh.matrixAutoUpdate = false;
-scene.add(vehicleMesh);
+// const vehicleGeometry = new THREE.ConeGeometry(0.1, 0.5, 8);
+// vehicleGeometry.rotateX(Math.PI * 0.5);
+// const vehicleMaterial = new THREE.MeshNormalMaterial();
+// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
+// vehicleMesh.matrixAutoUpdate = false;
+// scene.add(vehicleMesh);
 
 const vehicle = new YUKA.Vehicle();
 
@@ -55,8 +55,6 @@ loader.load(carURL.href, function(glb) {
   scene.add(model)
   vehicle.setRenderComponent(model, sync);
 })
-
-
 
 const target = new YUKA.GameEntity();
 entityManager.add(target);

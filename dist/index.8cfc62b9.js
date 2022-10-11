@@ -540,7 +540,7 @@ const renderer = new _three.WebGLRenderer({
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-const carURL = new URL(require("41157aa230969f5e"));
+const carURL = new URL(require("b39b6a9ae7e187cb"));
 const scene = new _three.Scene();
 renderer.setClearColor(0xA3A3A3);
 const camera = new _three.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -550,12 +550,12 @@ const ambientLight = new _three.AmbientLight(0x333333);
 scene.add(ambientLight);
 const directionalLight = new _three.DirectionalLight(0xFFFFFF, 1);
 scene.add(directionalLight);
-const vehicleGeometry = new _three.ConeBufferGeometry(0.1, 0.5, 8);
-vehicleGeometry.rotateX(Math.PI * 0.5);
-const vehicleMaterial = new _three.MeshNormalMaterial();
-const vehicleMesh = new _three.Mesh(vehicleGeometry, vehicleMaterial);
-vehicleMesh.matrixAutoUpdate = false;
-scene.add(vehicleMesh);
+// const vehicleGeometry = new THREE.ConeGeometry(0.1, 0.5, 8);
+// vehicleGeometry.rotateX(Math.PI * 0.5);
+// const vehicleMaterial = new THREE.MeshNormalMaterial();
+// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
+// vehicleMesh.matrixAutoUpdate = false;
+// scene.add(vehicleMesh);
 const vehicle = new _yuka.Vehicle();
 vehicle.scale.set(0.15, 0.15, 0.15);
 function sync(entity, renderComponent) {
@@ -607,7 +607,7 @@ window.addEventListener("resize", function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-},{"three":"ktPTu","yuka":"ead4k","41157aa230969f5e":"jHg0f","three/examples/jsm/loaders/GLTFLoader":"dVRsF"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","yuka":"ead4k","b39b6a9ae7e187cb":"jHg0f","three/examples/jsm/loaders/GLTFLoader":"dVRsF"}],"ktPTu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ACESFilmicToneMapping", ()=>ACESFilmicToneMapping);
