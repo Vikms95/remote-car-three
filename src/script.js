@@ -1,10 +1,12 @@
 import * as THREE from 'three'
 import * as YUKA from 'yuka'
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
+const carURL = new URL('../static/SUV.glb', import.meta.url)
 const scene = new THREE.Scene()
 
 renderer.setClearColor(0XA3A3A3)
@@ -18,6 +20,14 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 20, 0)
 camera.lookAt(scene.position)
+
+const loader = new GLTFLoader()
+
+loader.load(carURL.href, function(glb) {
+  const model = glb.scene
+  model.scale.set(0.5, 0.5, 0.5)
+  scene.add(model)
+})
 
 const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
 vehicleGeometry.rotateX(Math.PI * 0.5)
