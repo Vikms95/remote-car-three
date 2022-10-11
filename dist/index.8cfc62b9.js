@@ -535,34 +535,31 @@ function hmrAcceptRun(bundle, id) {
 var _three = require("three");
 var _yuka = require("yuka");
 var _gltfloader = require("three/examples/jsm/loaders/GLTFLoader");
+// Crea escena y adjuntamos el renderer al DOM
+const scene = new _three.Scene();
 const renderer = new _three.WebGLRenderer({
     antialias: true
 });
+renderer.setClearColor(0xa3a3a3);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-const carURL = new URL(require("b39b6a9ae7e187cb"));
-const scene = new _three.Scene();
-renderer.setClearColor(0xA3A3A3);
+const carURL = new URL(require("2c78dc80e484fcf9"));
+// Crea la camara especificando el rango de visión y su posición
 const camera = new _three.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 10, 4);
 camera.lookAt(scene.position);
+// Monta la luz con origen en la parte superior de la escena
 const ambientLight = new _three.AmbientLight(0x333333);
 scene.add(ambientLight);
-const directionalLight = new _three.DirectionalLight(0xFFFFFF, 1);
+const directionalLight = new _three.DirectionalLight(0xffffff, 1);
 scene.add(directionalLight);
-// const vehicleGeometry = new THREE.ConeGeometry(0.1, 0.5, 8);
-// vehicleGeometry.rotateX(Math.PI * 0.5);
-// const vehicleMaterial = new THREE.MeshNormalMaterial();
-// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
-// vehicleMesh.matrixAutoUpdate = false;
-// scene.add(vehicleMesh);
+// Crea la entidad que se adjuntará al gltf
 const vehicle = new _yuka.Vehicle();
 vehicle.scale.set(0.15, 0.15, 0.15);
 function sync(entity, renderComponent) {
     renderComponent.matrix.copy(entity.worldMatrix);
 }
-const entityManager = new _yuka.EntityManager();
-entityManager.add(vehicle);
+// Lleva la entidad a escena y le adjuntamos el hyperlink reference del gltf
 const loader = new (0, _gltfloader.GLTFLoader)();
 loader.load(carURL.href, function(glb) {
     const model = glb.scene;
@@ -570,30 +567,39 @@ loader.load(carURL.href, function(glb) {
     scene.add(model);
     vehicle.setRenderComponent(model, sync);
 });
+const entityManager = new _yuka.EntityManager();
+entityManager.add(vehicle);
 const target = new _yuka.GameEntity();
 entityManager.add(target);
+// Configura el comportamiento de la entidad cuando llegue al destino que se le marque
 const seekBehavior = new _yuka.ArriveBehavior(target.position, 3, 0.5);
 vehicle.steering.add(seekBehavior);
 vehicle.position.set(-2, 0, -2);
+// Crea la referencia a la posición del ratón
 const mousePosition = new _three.Vector2();
+// Añade un listener al evento de movimiento del ratón
 window.addEventListener("mousemove", function(e) {
     mousePosition.x = e.clientX / this.window.innerWidth * 2 - 1;
     mousePosition.y = -(e.clientY / this.window.innerHeight) * 2 + 1;
 });
+// Configura el area donde la entidad va a reconocer los clicks
 const planeGeo = new _three.PlaneGeometry(25, 25);
 const planeMat = new _three.MeshBasicMaterial({
     visible: false
 });
 const planeMesh = new _three.Mesh(planeGeo, planeMat);
 planeMesh.rotation.x = -0.5 * Math.PI;
-scene.add(planeMesh);
 planeMesh.name = "plane";
+scene.add(planeMesh);
+// Crea el elemento que estará observando si el ratón 
+// ejecuta una acción mientras está en el rango de reconocimiento de los clicks
 const raycaster = new _three.Raycaster();
 window.addEventListener("click", function() {
     raycaster.setFromCamera(mousePosition, camera);
     const intersects = raycaster.intersectObjects(scene.children);
     for(let i = 0; i < intersects.length; i++)if (intersects[i].object.name === "plane") target.position.set(intersects[i].point.x, 0, intersects[i].point.z);
 });
+// Crea el loop del videojuego
 const time = new _yuka.Time();
 function animate() {
     const delta = time.update().getDelta();
@@ -601,13 +607,14 @@ function animate() {
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
+// Hace la pantalla responsive a reajustes de tamaño
 window.addEventListener("resize", function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-},{"three":"ktPTu","yuka":"ead4k","b39b6a9ae7e187cb":"jHg0f","three/examples/jsm/loaders/GLTFLoader":"dVRsF"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","yuka":"ead4k","three/examples/jsm/loaders/GLTFLoader":"dVRsF","2c78dc80e484fcf9":"DvRIB"}],"ktPTu":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ACESFilmicToneMapping", ()=>ACESFilmicToneMapping);
@@ -42751,44 +42758,7 @@ const closestNormalPoint = new Vector3();
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jHg0f":[function(require,module,exports) {
-module.exports = require("./helpers/bundle-url").getBundleURL("fqV6O") + "SUV.ee6ec476.glb" + "?" + Date.now();
-
-},{"./helpers/bundle-url":"lgJ39"}],"lgJ39":[function(require,module,exports) {
-"use strict";
-var bundleURL = {};
-function getBundleURLCached(id) {
-    var value = bundleURL[id];
-    if (!value) {
-        value = getBundleURL();
-        bundleURL[id] = value;
-    }
-    return value;
-}
-function getBundleURL() {
-    try {
-        throw new Error();
-    } catch (err) {
-        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
-        if (matches) // The first two stack frames will be this function and getBundleURLCached.
-        // Use the 3rd one, which will be a runtime in the original bundle.
-        return getBaseURL(matches[2]);
-    }
-    return "/";
-}
-function getBaseURL(url) {
-    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
-} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
-function getOrigin(url) {
-    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
-    if (!matches) throw new Error("Origin not found");
-    return matches[0];
-}
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-exports.getOrigin = getOrigin;
-
-},{}],"dVRsF":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVRsF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GLTFLoader", ()=>GLTFLoader);
@@ -45156,6 +45126,43 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
     return newGeometry;
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["2mNKm","6rimH"], "6rimH", "parcelRequireb576")
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"DvRIB":[function(require,module,exports) {
+module.exports = require("./helpers/bundle-url").getBundleURL("fqV6O") + "coche_amarillo.8b0eb48f.glb" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+"use strict";
+var bundleURL = {};
+function getBundleURLCached(id) {
+    var value = bundleURL[id];
+    if (!value) {
+        value = getBundleURL();
+        bundleURL[id] = value;
+    }
+    return value;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
+        if (matches) // The first two stack frames will be this function and getBundleURLCached.
+        // Use the 3rd one, which will be a runtime in the original bundle.
+        return getBaseURL(matches[2]);
+    }
+    return "/";
+}
+function getBaseURL(url) {
+    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
+    if (!matches) throw new Error("Origin not found");
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}]},["2mNKm","6rimH"], "6rimH", "parcelRequireb576")
 
 //# sourceMappingURL=index.8cfc62b9.js.map
