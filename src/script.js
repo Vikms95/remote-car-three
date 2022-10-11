@@ -1,117 +1,85 @@
-import * as THREE from 'three'
-import * as YUKA from 'yuka'
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
-import { Scene } from 'three';
+import * as THREE from 'three';
+import * as YUKA from 'yuka';
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
+const renderer = new THREE.WebGLRenderer({antialias: true});
 
-const carURL = new URL('../static/SUV.glb', import.meta.url)
-const scene = new THREE.Scene()
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-renderer.setClearColor(0XA3A3A3)
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+renderer.setClearColor(0xA3A3A3);
 
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-)
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
 
-camera.position.set(0, 20, 0)
-camera.lookAt(scene.position)
+camera.position.set(0, 10, 4);
+camera.lookAt(scene.position);
 
-const ambientLight = new THREE.AmbientLight(0X33333)
-scene.add(ambientLight)
+const ambientLight = new THREE.AmbientLight(0x333333);
+scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0XFFFFFF, 1)
-directionalLight.position.set(0, 10, 10)
-scene.add(directionalLight)
+const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
+scene.add(directionalLight);
 
-const loader = new GLTFLoader()
+const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8);
+vehicleGeometry.rotateX(Math.PI * 0.5);
+const vehicleMaterial = new THREE.MeshNormalMaterial();
+const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
+vehicleMesh.matrixAutoUpdate = false;
+scene.add(vehicleMesh);
 
-const vehicle = new YUKA.Vehicle()
+const vehicle = new YUKA.Vehicle();
 
+vehicle.setRenderComponent(vehicleMesh, sync);
 
 function sync(entity, renderComponent) {
-  renderComponent.matrix.copy(entity.worldMatrix)
+    renderComponent.matrix.copy(entity.worldMatrix);
 }
 
-const path = new YUKA.Path()
+const entityManager = new YUKA.EntityManager();
+entityManager.add(vehicle);
 
-path.add(new YUKA.Vector3(-30, 0 ,4))
-path.add(new YUKA.Vector3(-15, 0 ,0))
-path.add(new YUKA.Vector3(-20, 0 ,-10))
-path.add(new YUKA.Vector3(0, 0 ,-10))
-path.add(new YUKA.Vector3(10, 0 ,-4))
-path.add(new YUKA.Vector3(25, 0 ,0))
-path.add(new YUKA.Vector3(30, 0 ,4))
-path.add(new YUKA.Vector3(20, 0 ,6))
+const targetGeometry = new THREE.SphereGeometry(0.1);
+const targetMaterial = new THREE.MeshPhongMaterial({color: 0xFFEA00});
+const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
+targetMesh.matrixAutoUpdate = false;
+scene.add(targetMesh);
 
-path.loop = true
+const target = new YUKA.GameEntity();
+target.setRenderComponent(targetMesh, sync);
+entityManager.add(target);
 
-vehicle.position.copy(path.current())
+const seekBehavior = new YUKA.SeekBehavior(target.position);
+vehicle.steering.add(seekBehavior);
 
-const followPathBehavior = new YUKA.FollowPathBehavior(path, 3)
-vehicle.steering.add(followPathBehavior)
+vehicle.position.set(-2, 0, -2);
 
+setInterval(function(){
+    const x = Math.random() * 3;
+    const y = Math.random() * 3;
+    const z = Math.random() * 3;
 
-const onPathBehavior = new YUKA.OnPathBehavior(path)
-onPathBehavior.radius = 0.8
-vehicle.steering.add(onPathBehavior)
-vehicle.maxSpeed = 5
+    target.position.set(x, y, z);
+}, 2000);
 
-const entityManager = new YUKA.EntityManager()
-entityManager.add(vehicle)
-
-loader.load(carURL.href, function(glb) {
-  const model = glb.scene
-  model.scale.set(0.5, 0.5, 0.5)
-  scene.add(model)
-  model.matrixAutoUpdate = false
-  vehicle.scale = new YUKA.Vector3(0.5, 0.5, 0.5)
-  vehicle.setRenderComponent(model, sync)
-})
-
-// const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
-// vehicleGeometry.rotateX(Math.PI * 0.5)
-// const vehicleMaterial = new THREE.MeshNormalMaterial()
-// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial)
-// vehicleMesh.matrixAutoUpdate = false
-// scene.add(vehicleMesh)
-
-
-
-const position = []
-
-for(let i = 0; i < path._waypoints.length;i++){
-  const waypoint = path._waypoints[i]
-  position.push(waypoint.x, waypoint.y, waypoint.z)
-}
-
-const lineGeometry = new THREE.BufferGeometry()
-lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3))
-
-const lineMaterial = new THREE.LineBasicMaterial({color: 0XFFFFFF})
-const lines = new THREE.LineLoop(lineGeometry, lineMaterial)
-scene.add(lines)
-
-
-const time = new YUKA.Time()
+const time = new YUKA.Time();
 
 function animate() {
-  const delta = time.update().getDelta()
-  entityManager.update(delta)
-  renderer.render(scene, camera)
+    const delta = time.update().getDelta();
+    entityManager.update(delta);
+    renderer.render(scene, camera);
 }
 
-renderer.setAnimationLoop(animate)
+renderer.setAnimationLoop(animate);
 
 window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-})
-
-renderer.render(scene,camera)
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
