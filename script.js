@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const renderer = new THREE.WebGLRenderer({antialias: true});
 
