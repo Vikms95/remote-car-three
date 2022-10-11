@@ -53,7 +53,7 @@ path.loop = true
 
 vehicle.position.copy(path.current())
 
-const followPathBehavior = new YUKA.FollowPathBehavior(path, 0.5)
+const followPathBehavior = new YUKA.FollowPathBehavior(path, 3)
 vehicle.steering.add(followPathBehavior)
 
 
@@ -70,6 +70,7 @@ loader.load(carURL.href, function(glb) {
   model.scale.set(0.5, 0.5, 0.5)
   scene.add(model)
   model.matrixAutoUpdate = false
+  vehicle.scale = new YUKA.Vector3(0.5, 0.5, 0.5)
   vehicle.setRenderComponent(model, sync)
 })
 

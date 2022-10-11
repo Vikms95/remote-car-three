@@ -565,7 +565,7 @@ path.add(new _yuka.Vector3(30, 0, 4));
 path.add(new _yuka.Vector3(20, 0, 6));
 path.loop = true;
 vehicle.position.copy(path.current());
-const followPathBehavior = new _yuka.FollowPathBehavior(path, 0.5);
+const followPathBehavior = new _yuka.FollowPathBehavior(path, 3);
 vehicle.steering.add(followPathBehavior);
 const onPathBehavior = new _yuka.OnPathBehavior(path);
 onPathBehavior.radius = 0.8;
@@ -578,6 +578,7 @@ loader.load(carURL.href, function(glb) {
     model.scale.set(0.5, 0.5, 0.5);
     scene.add(model);
     model.matrixAutoUpdate = false;
+    vehicle.scale = new _yuka.Vector3(0.5, 0.5, 0.5);
     vehicle.setRenderComponent(model, sync);
 });
 // const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
