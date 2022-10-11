@@ -535,33 +535,33 @@ function hmrAcceptRun(bundle, id) {
 var _three = require("three");
 var _yuka = require("yuka");
 var _gltfloader = require("three/examples/jsm/loaders/GLTFLoader");
-const renderer = new (0, _three.WebGLRenderer)({
+const renderer = new _three.WebGLRenderer({
     antialias: true
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const carURL = new URL(require("41157aa230969f5e"));
-const scene = new (0, _three.Scene)();
+const scene = new _three.Scene();
 renderer.setClearColor(0xA3A3A3);
-const camera = new (0, _three.PerspectiveCamera)(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new _three.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 10, 4);
 camera.lookAt(scene.position);
-const ambientLight = new (0, _three.AmbientLight)(0x333333);
+const ambientLight = new _three.AmbientLight(0x333333);
 scene.add(ambientLight);
-const directionalLight = new (0, _three.DirectionalLight)(0xFFFFFF, 1);
+const directionalLight = new _three.DirectionalLight(0xFFFFFF, 1);
 scene.add(directionalLight);
-const vehicleGeometry = new (0, _three.ConeBufferGeometry)(0.1, 0.5, 8);
+const vehicleGeometry = new _three.ConeBufferGeometry(0.1, 0.5, 8);
 vehicleGeometry.rotateX(Math.PI * 0.5);
-const vehicleMaterial = new (0, _three.MeshNormalMaterial)();
-const vehicleMesh = new (0, _three.Mesh)(vehicleGeometry, vehicleMaterial);
+const vehicleMaterial = new _three.MeshNormalMaterial();
+const vehicleMesh = new _three.Mesh(vehicleGeometry, vehicleMaterial);
 vehicleMesh.matrixAutoUpdate = false;
 scene.add(vehicleMesh);
-const vehicle = new (0, _yuka.Vehicle)();
+const vehicle = new _yuka.Vehicle();
 vehicle.scale.set(0.15, 0.15, 0.15);
 function sync(entity, renderComponent) {
     renderComponent.matrix.copy(entity.worldMatrix);
 }
-const entityManager = new (0, _yuka.EntityManager)();
+const entityManager = new _yuka.EntityManager();
 entityManager.add(vehicle);
 const loader = new (0, _gltfloader.GLTFLoader)();
 loader.load(carURL.href, function(glb) {
@@ -570,31 +570,31 @@ loader.load(carURL.href, function(glb) {
     scene.add(model);
     vehicle.setRenderComponent(model, sync);
 });
-const target = new (0, _yuka.GameEntity)();
+const target = new _yuka.GameEntity();
 entityManager.add(target);
-const seekBehavior = new (0, _yuka.ArriveBehavior)(target.position, 3, 0.5);
+const seekBehavior = new _yuka.ArriveBehavior(target.position, 3, 0.5);
 vehicle.steering.add(seekBehavior);
 vehicle.position.set(-2, 0, -2);
-const mousePosition = new (0, _three.Vector2)();
+const mousePosition = new _three.Vector2();
 window.addEventListener("mousemove", function(e) {
     mousePosition.x = e.clientX / this.window.innerWidth * 2 - 1;
     mousePosition.y = -(e.clientY / this.window.innerHeight) * 2 + 1;
 });
-const planeGeo = new (0, _three.PlaneGeometry)(25, 25);
-const planeMat = new (0, _three.MeshBasicMaterial)({
+const planeGeo = new _three.PlaneGeometry(25, 25);
+const planeMat = new _three.MeshBasicMaterial({
     visible: false
 });
-const planeMesh = new (0, _three.Mesh)(planeGeo, planeMat);
+const planeMesh = new _three.Mesh(planeGeo, planeMat);
 planeMesh.rotation.x = -0.5 * Math.PI;
 scene.add(planeMesh);
 planeMesh.name = "plane";
-const raycaster = new (0, _three.Raycaster)();
+const raycaster = new _three.Raycaster();
 window.addEventListener("click", function() {
     raycaster.setFromCamera(mousePosition, camera);
     const intersects = raycaster.intersectObjects(scene.children);
     for(let i = 0; i < intersects.length; i++)if (intersects[i].object.name === "plane") target.position.set(intersects[i].point.x, 0, intersects[i].point.z);
 });
-const time = new (0, _yuka.Time)();
+const time = new _yuka.Time();
 function animate() {
     const delta = time.update().getDelta();
     entityManager.update(delta);
