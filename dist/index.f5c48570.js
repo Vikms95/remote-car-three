@@ -543,6 +543,7 @@ const camera = new _three.PerspectiveCamera(75, window.innerWidth / window.inner
 camera.position.set(0, 20, 0);
 camera.lookAt(scene.position);
 const vehicleGeometry = new _three.ConeBufferGeometry(0.1, 0.5, 8);
+vehicleGeometry.rotateX(Math.PI * 0.5);
 const vehicleMaterial = new _three.MeshNormalMaterial();
 const vehicleMesh = new _three.Mesh(vehicleGeometry, vehicleMaterial);
 vehicleMesh.matrixAutoUpdate = false;
@@ -561,11 +562,28 @@ path.add(new _yuka.Vector3(4, 0, -4));
 path.add(new _yuka.Vector3(6, 0, 0));
 path.add(new _yuka.Vector3(4, 0, 4));
 path.add(new _yuka.Vector3(0, 0, 6));
+path.loop = true;
 vehicle.position.copy(path.current());
 const followPathBehavior = new _yuka.FollowPathBehavior(path, 0.5);
 vehicle.steering.add(followPathBehavior);
+const onPathBehavior = new _yuka.OnPathBehavior(path);
+onPathBehavior.radius = 0.8;
+vehicle.steering.add(onPathBehavior);
+vehicle.maxSpeed = 5;
 const entityManager = new _yuka.EntityManager();
 entityManager.add(vehicle);
+const position = [];
+for(let i = 0; i < path._waypoints.length; i++){
+    const waypoint = path._waypoints[i];
+    position.push(waypoint.x, waypoint.y, waypoint.z);
+}
+const lineGeometry = new _three.BufferGeometry();
+lineGeometry.setAttribute("position", new _three.Float32BufferAttribute(position, 3));
+const lineMaterial = new _three.LineBasicMaterial({
+    color: 0XFFFFFF
+});
+const lines = new _three.LineLoop(lineGeometry, lineMaterial);
+scene.add(lines);
 const time = new _yuka.Time();
 function animate() {
     const delta = time.update().getDelta();

@@ -20,6 +20,7 @@ camera.position.set(0, 20, 0)
 camera.lookAt(scene.position)
 
 const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
+vehicleGeometry.rotateX(Math.PI * 0.5)
 const vehicleMaterial = new THREE.MeshNormalMaterial()
 const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial)
 vehicleMesh.matrixAutoUpdate = false
@@ -43,13 +44,36 @@ path.add(new YUKA.Vector3(6, 0 ,0))
 path.add(new YUKA.Vector3(4, 0 ,4))
 path.add(new YUKA.Vector3(0, 0 ,6))
 
+path.loop = true
+
 vehicle.position.copy(path.current())
 
 const followPathBehavior = new YUKA.FollowPathBehavior(path, 0.5)
 vehicle.steering.add(followPathBehavior)
 
+
+const onPathBehavior = new YUKA.OnPathBehavior(path)
+onPathBehavior.radius = 0.8
+vehicle.steering.add(onPathBehavior)
+vehicle.maxSpeed = 5
+
 const entityManager = new YUKA.EntityManager()
 entityManager.add(vehicle)
+
+const position = []
+
+for(let i = 0; i < path._waypoints.length;i++){
+  const waypoint = path._waypoints[i]
+  position.push(waypoint.x, waypoint.y, waypoint.z)
+}
+
+const lineGeometry = new THREE.BufferGeometry()
+lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3))
+
+const lineMaterial = new THREE.LineBasicMaterial({color: 0XFFFFFF})
+const lines = new THREE.LineLoop(lineGeometry, lineMaterial)
+scene.add(lines)
+
 
 const time = new YUKA.Time()
 
