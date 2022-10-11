@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import * as YUKA from 'yuka'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+import { Scene } from 'three';
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -21,23 +22,17 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 20, 0)
 camera.lookAt(scene.position)
 
+const ambientLight = new THREE.AmbientLight(0X33333)
+scene.add(ambientLight)
+
+const directionalLight = new THREE.DirectionalLight(0XFFFFFF, 1)
+directionalLight.position.set(0, 10, 10)
+scene.add(directionalLight)
+
 const loader = new GLTFLoader()
 
-loader.load(carURL.href, function(glb) {
-  const model = glb.scene
-  model.scale.set(0.5, 0.5, 0.5)
-  scene.add(model)
-})
-
-const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
-vehicleGeometry.rotateX(Math.PI * 0.5)
-const vehicleMaterial = new THREE.MeshNormalMaterial()
-const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial)
-vehicleMesh.matrixAutoUpdate = false
-scene.add(vehicleMesh)
-
 const vehicle = new YUKA.Vehicle()
-vehicle.setRenderComponent(vehicleMesh, sync)
+
 
 function sync(entity, renderComponent) {
   renderComponent.matrix.copy(entity.worldMatrix)
@@ -45,14 +40,14 @@ function sync(entity, renderComponent) {
 
 const path = new YUKA.Path()
 
-path.add(new YUKA.Vector3(-4, 0 ,4))
-path.add(new YUKA.Vector3(-6, 0 ,0))
-path.add(new YUKA.Vector3(-4, 0 ,-4))
-path.add(new YUKA.Vector3(0, 0 ,0))
-path.add(new YUKA.Vector3(4, 0 ,-4))
-path.add(new YUKA.Vector3(6, 0 ,0))
-path.add(new YUKA.Vector3(4, 0 ,4))
-path.add(new YUKA.Vector3(0, 0 ,6))
+path.add(new YUKA.Vector3(-30, 0 ,4))
+path.add(new YUKA.Vector3(-15, 0 ,0))
+path.add(new YUKA.Vector3(-20, 0 ,-10))
+path.add(new YUKA.Vector3(0, 0 ,-10))
+path.add(new YUKA.Vector3(10, 0 ,-4))
+path.add(new YUKA.Vector3(25, 0 ,0))
+path.add(new YUKA.Vector3(30, 0 ,4))
+path.add(new YUKA.Vector3(20, 0 ,6))
 
 path.loop = true
 
@@ -69,6 +64,23 @@ vehicle.maxSpeed = 5
 
 const entityManager = new YUKA.EntityManager()
 entityManager.add(vehicle)
+
+loader.load(carURL.href, function(glb) {
+  const model = glb.scene
+  model.scale.set(0.5, 0.5, 0.5)
+  scene.add(model)
+  model.matrixAutoUpdate = false
+  vehicle.setRenderComponent(model, sync)
+})
+
+// const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
+// vehicleGeometry.rotateX(Math.PI * 0.5)
+// const vehicleMaterial = new THREE.MeshNormalMaterial()
+// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial)
+// vehicleMesh.matrixAutoUpdate = false
+// scene.add(vehicleMesh)
+
+
 
 const position = []
 
