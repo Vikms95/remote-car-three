@@ -8,7 +8,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 document.body.appendChild(renderer.domElement);
 
-const carURL = new URL('../static/SUV.glb', import.meta.url)
+const carURL = new URL('./static/SUV.glb', import.meta.url)
 
 const scene = new THREE.Scene();
 
